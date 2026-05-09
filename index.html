@@ -32,7 +32,7 @@
   --shadow:0 2px 12px rgba(0,0,0,.3);
   --shadow2:0 4px 24px rgba(0,0,0,.4);
 }
-html,body{min-height:100vh;background:var(--bg);color:var(--text)}
+html,body{min-height:100vh;width:100%;background:var(--bg);color:var(--text)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -459,7 +459,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text)}
 
 // ===== ตั้งค่า URL ของ GAS Web App =====
 // วาง Deployment URL ที่ได้จาก Apps Script ตรงนี้ (ดูขั้นตอนใน GUIDE.md)
-var GAS_URL = "https://script.google.com/macros/s/AKfycbyjtMWZnld_M7rUa_DtdfM8ITOdVjAYTivMIT0uv5coZcXg8VUyJBxw7Ns8nikNoxantw/exec";
+var GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
 
 // ===== GAS API Helper =====
 // ฟังก์ชันกลางแทน google.script.run — เรียกครั้งเดียวทุก action
