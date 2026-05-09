@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CertFolio — ระบบเกียรติบัตรออนไลน์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F8FC;--bg2:#fff;--bg3:#EEF1F8;
+  --text:#1A2035;--text2:#5A6478;--text3:#9AA3B5;
+  --blue:#1E5FD5;--blue2:#2D6EE8;--blue3:#EBF1FD;
+  --gray:#E2E6EF;--gray2:#C8CDD8;
+  --success:#1D9E75;--success2:#E1F5EE;
+  --amber:#BA7517;--amber2:#FAEEDA;
+  --red:#A32D2D;--red2:#FCEBEB;
+  --shadow:0 2px 12px rgba(30,50,100,.08);
+  --shadow2:0 4px 24px rgba(30,50,100,.13);
+  --r:10px;--r2:14px;
+  font-family:'Sarabun',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0F1624;--bg2:#161E2E;--bg3:#1C2538;
+  --text:#E8EDF5;--text2:#8E9BB5;--text3:#5A6478;
+  --blue:#4A8AFF;--blue2:#6099FF;--blue3:#1A2A45;
+  --gray:#1F2A3D;--gray2:#2A3650;
+  --success:#1D9E75;--success2:#0A2A1F;
+  --amber:#EF9F27;--amber2:#2A1F08;
+  --red:#E24B4A;--red2:#2A0F0F;
+  --shadow:0 2px 12px rgba(0,0,0,.3);
+  --shadow2:0 4px 24px rgba(0,0,0,.4);
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* AUTH PAGES */
+.auth-page{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+.auth-page.show{display:flex;animation:fadeIn .3s ease}
+.auth-card{background:var(--bg2);border-radius:20px;padding:40px 36px;width:100%;max-width:420px;box-shadow:var(--shadow2)}
+.auth-logo{text-align:center;margin-bottom:26px}
+.auth-icon{width:64px;height:64px;background:var(--blue3);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px}
+.auth-icon i{font-size:32px;color:var(--blue)}
+.auth-title{font-size:22px;font-weight:700;color:var(--text)}
+.auth-sub{font-size:14px;color:var(--text3);margin-top:4px}
+.auth-alert{padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.alert-err{background:var(--red2);color:var(--red);border:1px solid rgba(162,45,45,.15)}
+.alert-ok{background:var(--success2);color:var(--success);border:1px solid rgba(29,158,117,.15)}
+.fg{margin-bottom:15px}
+.fl{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.iw{position:relative}
+.iw i.pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:17px;pointer-events:none}
+.fi{width:100%;padding:11px 14px 11px 38px;border:1.5px solid var(--gray);border-radius:10px;background:var(--bg3);color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none;transition:border .18s,box-shadow .18s}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,95,213,.1)}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:17px;display:flex;align-items:center}
+.btn-full{width:100%;padding:12px;border-radius:10px;border:none;font-size:15px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-blue{background:var(--blue);color:#fff;margin-top:4px}
+.btn-blue:hover:not(:disabled){background:var(--blue2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(30,95,213,.3)}
+.btn-blue:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1.5px solid var(--gray)}
+.btn-ghost:hover{background:var(--gray)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text3);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--gray)}
+.auth-switch{text-align:center;font-size:13px;color:var(--text3);margin-top:14px}
+.auth-switch a{color:var(--blue);cursor:pointer;font-weight:500}
+.auth-switch a:hover{text-decoration:underline}
+
+/* MAIN APP */
+#mainApp{display:none;flex-direction:column;min-height:100vh}
+#mainApp.show{display:flex;animation:fadeIn .3s ease}
+.nav{background:var(--bg2);border-bottom:1px solid var(--gray);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--blue)}
+.nav-links{display:flex;gap:4px}
+.nb{background:none;border:none;padding:7px 14px;border-radius:var(--r);cursor:pointer;font-size:14px;color:var(--text2);font-family:'Sarabun',sans-serif;display:flex;align-items:center;gap:6px;transition:all .18s}
+.nb:hover,.nb.active{background:var(--blue3);color:var(--blue)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.theme-btn{background:none;border:1px solid var(--gray);width:34px;height:34px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.theme-btn:hover{background:var(--bg3)}
+.user-badge{display:flex;align-items:center;gap:8px}
+.avatar{width:34px;height:34px;border-radius:8px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.avatar.admin{background:#7c3aed}
+.uname{font-size:13px;font-weight:600;color:var(--text)}
+.role-chip{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+.role-admin{background:#ede9fe;color:#7c3aed}
+.role-user{background:var(--blue3);color:var(--blue)}
+.logout-btn{background:none;border:1px solid var(--gray);color:var(--text2);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Sarabun',sans-serif;display:flex;align-items:center;gap:5px;transition:all .18s}
+.logout-btn:hover{background:var(--red2);color:var(--red);border-color:var(--red)}
+
+/* CONTENT */
+.mc{flex:1;padding:28px 20px;max-width:1140px;margin:0 auto;width:100%}
+.page{display:none}.page.active{display:block;animation:fadeIn .25s ease}
+.spin-wrap{display:flex;align-items:center;justify-content:center;padding:60px;flex-direction:column;gap:14px;color:var(--text3)}
+.spinner{width:32px;height:32px;border:3px solid var(--gray);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:var(--r2);padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow2);max-height:92vh;overflow-y:auto}
+.mt{font-size:17px;font-weight:600;margin-bottom:20px;color:var(--text);display:flex;align-items:center;gap:8px}
+.mc-btn{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px;border-radius:6px;display:flex;align-items:center}
+.mc-btn:hover{background:var(--bg3);color:var(--text)}
+.form-group{margin-bottom:15px}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:5px}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--gray);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none;transition:border .18s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue)}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.55}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bp{background:var(--blue);color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-family:'Sarabun',sans-serif;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
+.bp:hover:not(:disabled){background:var(--blue2)}
+.bp:disabled{opacity:.55;cursor:not-allowed}
+.bs{background:var(--bg3);color:var(--text2);border:1px solid var(--gray);padding:10px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-family:'Sarabun',sans-serif;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
+.bs:hover{background:var(--gray)}
+.ma{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* UPLOAD */
+.uz{border:2px dashed var(--gray2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .18s;background:var(--bg3)}
+.uz:hover{border-color:var(--blue);background:var(--blue3)}
+.uz i.cl{font-size:30px;color:var(--text3);display:block;margin-bottom:6px}
+.uz p{font-size:13px;color:var(--text3)}
+.uz span{font-size:11px;color:var(--text3);opacity:.7}
+.fpw{display:flex;align-items:center;gap:10px;padding:10px;background:var(--blue3);border-radius:8px;margin-top:8px}
+.fpw span{font-size:13px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rf{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;display:flex;align-items:center;flex-shrink:0}
+
+/* DASHBOARD */
+.dh{margin-bottom:24px}
+.dh-title{font-size:22px;font-weight:700;color:var(--text)}
+.dh-sub{font-size:14px;color:var(--text2);margin-top:3px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px;margin-bottom:28px}
+.sc{background:var(--bg2);border-radius:var(--r2);padding:18px;border:1px solid var(--gray);box-shadow:var(--shadow)}
+.si{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px}
+.si.blue{background:var(--blue3);color:var(--blue)}
+.si.green{background:var(--success2);color:var(--success)}
+.si.amber{background:var(--amber2);color:var(--amber)}
+.si.red{background:var(--red2);color:var(--red)}
+.sn{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.sl{font-size:12px;color:var(--text3);margin-top:4px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sh-t{font-size:16px;font-weight:600;color:var(--text)}
+.sh-l{font-size:13px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:'Sarabun',sans-serif}
+.sh-l:hover{text-decoration:underline}
+.yg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.yc{background:var(--bg2);border:1px solid var(--gray);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.yc:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--shadow2)}
+.yn{font-size:24px;font-weight:700}
+.yct{font-size:13px;color:var(--text3);margin-top:4px}
+.yb{height:4px;background:var(--gray);border-radius:2px;margin-top:12px;overflow:hidden}
+.ybf{height:100%;border-radius:2px}
+.rl{display:flex;flex-direction:column;gap:10px}
+.ri{background:var(--bg2);border:1px solid var(--gray);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .18s}
+.ri:hover{border-color:var(--blue);background:var(--blue3)}
+.rt{width:48px;height:48px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.rt img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.rinfo{flex:1;min-width:0}
+.rn{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm{font-size:12px;color:var(--text3);margin-top:3px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+
+/* CERTS */
+.tb{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.sw{position:relative;flex:1;min-width:200px}
+.sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none}
+.si2{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--gray);border-radius:8px;background:var(--bg2);color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none;transition:border .18s}
+.si2:focus{border-color:var(--blue)}
+.fs{padding:9px 12px;border:1px solid var(--gray);border-radius:8px;background:var(--bg2);color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none;cursor:pointer}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.cc{background:var(--bg2);border:1px solid var(--gray);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.cc:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow2)}
+.ct{height:148px;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ct img{width:100%;height:100%;object-fit:cover}
+.ctp{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3)}
+.ctp i{font-size:38px}
+.ctp span{font-size:11px;font-weight:500}
+.ci{padding:14px}
+.cn{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:40px}
+.co{font-size:12px;color:var(--text2);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.cd{font-size:11px;color:var(--text3)}
+.ca{display:flex;gap:3px}
+.ib{background:none;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;color:var(--text3);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.ib:hover{background:var(--bg3);color:var(--blue)}
+.ib.danger:hover{background:var(--red2);color:var(--red)}
+.cc2{background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px}
+
+/* DETAIL */
+.dhr{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.dth{width:110px;height:88px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.dth img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.dtitle{font-size:17px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:5px}
+.dorg{font-size:13px;color:var(--text2);margin-bottom:8px}
+.dr{display:flex;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--gray);align-items:flex-start}
+.dr:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.dic{width:32px;height:32px;border-radius:8px;background:var(--blue3);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.dlbl{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.dval{font-size:14px;color:var(--text);line-height:1.5}
+.dlink{color:var(--blue);text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:5px;word-break:break-all}
+.dlink:hover{text-decoration:underline}
+
+/* ADMIN */
+.user-table{width:100%;border-collapse:collapse;margin-top:16px}
+.user-table th{text-align:left;padding:10px 14px;font-size:12px;font-weight:600;color:var(--text3);border-bottom:2px solid var(--gray);text-transform:uppercase;letter-spacing:.5px}
+.user-table td{padding:12px 14px;font-size:14px;color:var(--text);border-bottom:1px solid var(--gray)}
+.user-table tr:hover td{background:var(--bg3)}
+.user-table tr:last-child td{border-bottom:none}
+
+/* EMPTY */
+.es{text-align:center;padding:56px 20px;color:var(--text3)}
+.es i{font-size:52px;margin-bottom:12px;opacity:.35;display:block}
+.es p{font-size:14px}
+
+/* NOTIF */
+.notif{position:fixed;bottom:22px;right:22px;background:var(--text);color:var(--bg);padding:12px 18px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transform:translateY(10px);transition:all .28s;pointer-events:none;max-width:290px;box-shadow:var(--shadow2)}
+.notif.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .form-row{grid-template-columns:1fr}
+  .cg{grid-template-columns:1fr 1fr}
+  .sg{grid-template-columns:1fr 1fr}
+  .mc{padding:16px 12px}
+  .auth-card{padding:28px 20px}
+  .user-table{font-size:12px}
+}
+@media(max-width:400px){.cg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div class="auth-page show" id="loginPage">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-icon"><i class="ti ti-award"></i></div>
+      <div class="auth-title">CertFolio</div>
+      <div class="auth-sub">เข้าสู่ระบบเพื่อดูเกียรติบัตรของคุณ</div>
+    </div>
+    <div class="auth-alert" id="loginAlert"></div>
+    <div class="fg"><label class="fl">ชื่อผู้ใช้</label>
+      <div class="iw"><i class="ti ti-user pre"></i>
+        <input type="text" class="fi" id="loginUser" placeholder="กรอกชื่อผู้ใช้" autocomplete="username"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">รหัสผ่าน</label>
+      <div class="iw"><i class="ti ti-lock pre"></i>
+        <input type="password" class="fi" id="loginPass" placeholder="กรอกรหัสผ่าน" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="eye" onclick="toggleEye('loginPass','eye1')" id="eye1"><i class="ti ti-eye"></i></button>
+      </div>
+    </div>
+    <button class="btn-full btn-blue" id="loginBtn" onclick="doLogin()">
+      <i class="ti ti-login"></i> เข้าสู่ระบบ
+    </button>
+    <div class="auth-switch">ยังไม่มีบัญชี? <a onclick="showAuth('register')">สมัครสมาชิก</a></div>
+  </div>
+</div>
+
+<!-- ===== REGISTER ===== -->
+<div class="auth-page" id="registerPage">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-icon"><i class="ti ti-user-plus"></i></div>
+      <div class="auth-title">สมัครสมาชิก</div>
+      <div class="auth-sub">สร้างบัญชีเพื่อเก็บเกียรติบัตรของคุณ</div>
+    </div>
+    <div class="auth-alert" id="regAlert"></div>
+    <div class="fg"><label class="fl">ชื่อที่แสดง</label>
+      <div class="iw"><i class="ti ti-id-badge pre"></i>
+        <input type="text" class="fi" id="regName" placeholder="เช่น นายสมชาย ใจดี">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">ชื่อผู้ใช้ (อย่างน้อย 4 ตัว)</label>
+      <div class="iw"><i class="ti ti-user pre"></i>
+        <input type="text" class="fi" id="regUser" placeholder="เช่น somchai123" autocomplete="username">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">รหัสผ่าน (อย่างน้อย 6 ตัว)</label>
+      <div class="iw"><i class="ti ti-lock pre"></i>
+        <input type="password" class="fi" id="regPass" placeholder="รหัสผ่าน" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')doRegister()">
+        <button class="eye" onclick="toggleEye('regPass','eye2')" id="eye2"><i class="ti ti-eye"></i></button>
+      </div>
+    </div>
+    <button class="btn-full btn-blue" id="regBtn" onclick="doRegister()">
+      <i class="ti ti-user-plus"></i> สมัครสมาชิก
+    </button>
+    <div class="auth-switch">มีบัญชีแล้ว? <a onclick="showAuth('login')">เข้าสู่ระบบ</a></div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="mainApp">
+  <nav class="nav">
+    <div class="nav-brand"><i class="ti ti-award"></i> CertFolio</div>
+    <div class="nav-links" id="navLinks">
+      <button class="nb active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <i class="ti ti-layout-dashboard"></i> Dashboard
+      </button>
+      <button class="nb" onclick="showPage('certs')" id="nav-certs">
+        <i class="ti ti-certificate"></i> เกียรติบัตร
+      </button>
+      <button class="nb" onclick="showPage('admin')" id="nav-admin" style="display:none">
+        <i class="ti ti-shield"></i> จัดการ User
+      </button>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn"><i class="ti ti-moon"></i></button>
+      <div id="userInfo"></div>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </nav>
+
+  <div class="mc">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="dh">
+        <div class="dh-title">ภาพรวมเกียรติบัตร</div>
+        <div class="dh-sub" id="dashSub">ยินดีต้อนรับ</div>
+      </div>
+      <div id="dashContent"><div class="spin-wrap"><div class="spinner"></div><span>กำลังโหลด...</span></div></div>
+    </div>
+
+    <!-- CERTS -->
+    <div class="page" id="page-certs">
+      <div class="dh" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="dh-title">เกียรติบัตรของฉัน <span class="cc2" id="certCount">0</span></div>
+          <div class="dh-sub">เกียรติบัตรทั้งหมดของคุณ</div>
+        </div>
+        <button class="bp" id="addBtn" onclick="openAdd()">
+          <i class="ti ti-plus"></i> เพิ่มเกียรติบัตร
+        </button>
+      </div>
+      <div class="tb">
+        <div class="sw"><i class="ti ti-search"></i>
+          <input type="text" class="si2" id="searchInput" placeholder="ค้นหา..." oninput="renderCerts()">
+        </div>
+        <select class="fs" id="yearFilter" onchange="renderCerts()"><option value="">ทุกปี</option></select>
+        <select class="fs" id="sortFilter" onchange="renderCerts()">
+          <option value="newest">ล่าสุดก่อน</option>
+          <option value="oldest">เก่าสุดก่อน</option>
+          <option value="name">ชื่อ A-Z</option>
+        </select>
+      </div>
+      <div class="cg" id="certGrid"></div>
+      <div class="es" id="emptyState" style="display:none">
+        <i class="ti ti-mood-empty"></i><p>ยังไม่มีเกียรติบัตร กดปุ่ม "เพิ่มเกียรติบัตร" ได้เลยครับ</p>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="page" id="page-admin">
+      <div class="dh">
+        <div class="dh-title">จัดการผู้ใช้</div>
+        <div class="dh-sub">ดูและจัดการบัญชีผู้ใช้ทั้งหมด</div>
+      </div>
+      <div id="adminContent"><div class="spin-wrap"><div class="spinner"></div><span>กำลังโหลด...</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="addModal">
+  <div class="modal">
+    <div class="mt">
+      <i class="ti ti-certificate"></i>
+      <span id="modalTitle">เพิ่มเกียรติบัตร</span>
+      <button class="mc-btn" onclick="closeModal('addModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="uz" onclick="document.getElementById('fileInput').click()">
+      <div id="uploadPrompt"><i class="ti ti-cloud-upload cl"></i><p>คลิกหรือลากไฟล์มาวาง</p><span>PDF, JPG, PNG (สูงสุด 10 MB)</span></div>
+      <div id="filePW" style="display:none" class="fpw"></div>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this)">
+    <div style="margin-top:14px">
+      <div class="form-group">
+        <label class="form-label">ชื่อเกียรติบัตร <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="fName" placeholder="เช่น รางวัลนักเรียนดีเด่น">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">หน่วยงาน <span style="color:var(--red)">*</span></label>
+          <input type="text" class="form-input" id="fOrg" placeholder="เช่น กระทรวงศึกษาธิการ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ปี (พ.ศ.)</label>
+          <select class="form-select" id="fYear"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">วันที่ได้รับ</label>
+        <input type="date" class="form-input" id="fDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">รายละเอียด</label>
+        <textarea class="form-textarea" id="fDesc" placeholder="รายละเอียด..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ลิงก์อ้างอิง</label>
+        <input type="url" class="form-input" id="fLink" placeholder="https://...">
+      </div>
+    </div>
+    <div class="ma">
+      <button class="bs" onclick="closeModal('addModal')">ยกเลิก</button>
+      <button class="bp" onclick="saveCert()" id="saveBtn"><i class="ti ti-device-floppy"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailModal">
+  <div class="modal" style="max-width:520px">
+    <div class="mt"><i class="ti ti-certificate"></i> รายละเอียด
+      <button class="mc-btn" onclick="closeModal('detailModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="detailContent"></div>
+    <div class="ma" id="detailActions"></div>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="overlay" id="editUserModal">
+  <div class="modal" style="max-width:400px">
+    <div class="mt"><i class="ti ti-user-edit"></i> แก้ไขผู้ใช้
+      <button class="mc-btn" onclick="closeModal('editUserModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <input type="hidden" id="euId">
+    <div class="form-group">
+      <label class="form-label">ชื่อที่แสดง</label>
+      <input type="text" class="form-input" id="euName">
+    </div>
+    <div class="form-group">
+      <label class="form-label">สิทธิ์</label>
+      <select class="form-select" id="euRole">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)</label>
+      <input type="text" class="form-input" id="euPass" placeholder="รหัสผ่านใหม่">
+    </div>
+    <div class="ma">
+      <button class="bs" onclick="closeModal('editUserModal')">ยกเลิก</button>
+      <button class="bp" onclick="saveUser()" id="saveUserBtn"><i class="ti ti-device-floppy"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ============================================================
+//  CertFolio — GitHub Pages Edition
+//  แก้จาก google.script.run → fetch() ทุกจุด
+// ============================================================
+
+// ===== ตั้งค่า URL ของ GAS Web App =====
+// วาง Deployment URL ที่ได้จาก Apps Script ตรงนี้ (ดูขั้นตอนใน GUIDE.md)
+var GAS_URL = "https://script.google.com/macros/s/AKfycbyjtMWZnld_M7rUa_DtdfM8ITOdVjAYTivMIT0uv5coZcXg8VUyJBxw7Ns8nikNoxantw/exec";
+
+// ===== GAS API Helper =====
+// ฟังก์ชันกลางแทน google.script.run — เรียกครั้งเดียวทุก action
+// ใช้ Content-Type: text/plain เพื่อหลีกเลี่ยง CORS preflight ที่ GAS ไม่รองรับ
+function gasCall(payload) {
+  return fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  }).then(function(r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  });
+}
+
+// ===== STATE =====
+var certs=[], currentUser=null, editId=null, selFile=null, selName=null, dark=false;
+var YC=['blue','green','amber','red'];
+var YL=['2568','2567','2566','2565','2564','2563','2562','2561'];
+var BGC={blue:'var(--blue3)',green:'var(--success2)',amber:'var(--amber2)',red:'var(--red2)'};
+var TC={blue:'var(--blue)',green:'var(--success)',amber:'var(--amber)',red:'var(--red)'};
+
+function getYC(y){var i=YL.indexOf(String(y));return YC[i<0?0:i%4];}
+function tIcon(t,s){s=s||26;
+  return t==='pdf'?'<i class="ti ti-file-type-pdf" style="font-size:'+s+'px;color:var(--red)"></i>':
+    '<i class="ti ti-photo" style="font-size:'+s+'px;color:var(--blue)"></i>';}
+function esc(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+function spin(txt){return '<div class="spin-wrap"><div class="spinner"></div><span>'+(txt||'กำลังโหลด...')+'</span></div>';}
+
+// ===== THEME =====
+function toggleTheme(){
+  dark=!dark;
+  document.documentElement.setAttribute('data-theme',dark?'dark':'');
+  document.getElementById('themeBtn').innerHTML=dark?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon"></i>';
+}
+
+// ===== AUTH PAGES =====
+function showAuth(page){
+  document.querySelectorAll('.auth-page').forEach(function(x){x.classList.remove('show');});
+  document.getElementById(page+'Page').classList.add('show');
+}
+
+function toggleEye(inputId, btnId){
+  var i=document.getElementById(inputId),b=document.getElementById(btnId);
+  if(i.type==='password'){i.type='text';b.innerHTML='<i class="ti ti-eye-off"></i>';}
+  else{i.type='password';b.innerHTML='<i class="ti ti-eye"></i>';}
+}
+
+function showAuthAlert(elId, msg, type){
+  var el=document.getElementById(elId);
+  el.className='auth-alert alert-'+(type||'err');
+  el.innerHTML='<i class="ti ti-'+(type==='ok'?'circle-check':'alert-circle')+'"></i> '+msg;
+  el.style.display='flex';
+}
+
+// ===== LOGIN =====
+// เดิม: google.script.run.clientLogin(u, p)
+// ใหม่: gasCall({ action:"login", username, password })
+function doLogin(){
+  var u=document.getElementById('loginUser').value.trim();
+  var p=document.getElementById('loginPass').value;
+  var btn=document.getElementById('loginBtn');
+  if(!u||!p){showAuthAlert('loginAlert','กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');return;}
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> กำลังตรวจสอบ...';
+  gasCall({ action:"login", username:u, password:p })
+    .then(function(res){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-login"></i> เข้าสู่ระบบ';
+      if(res&&res.ok){
+        currentUser=res;
+        enterApp();
+      } else {
+        showAuthAlert('loginAlert',(res&&res.error)||'ไม่สำเร็จ');
+      }
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-login"></i> เข้าสู่ระบบ';
+      showAuthAlert('loginAlert','เกิดข้อผิดพลาด: '+err.message);
+    });
+}
+
+// ===== REGISTER =====
+// เดิม: google.script.run.clientRegister(u, p, name)
+// ใหม่: gasCall({ action:"register", username, password, displayName })
+function doRegister(){
+  var name=document.getElementById('regName').value.trim();
+  var u=document.getElementById('regUser').value.trim();
+  var p=document.getElementById('regPass').value;
+  var btn=document.getElementById('regBtn');
+  if(!name||!u||!p){showAuthAlert('regAlert','กรุณากรอกข้อมูลให้ครบ');return;}
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> กำลังสมัคร...';
+  gasCall({ action:"register", username:u, password:p, displayName:name })
+    .then(function(res){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-user-plus"></i> สมัครสมาชิก';
+      if(res&&res.ok){
+        currentUser=res;
+        showAuthAlert('regAlert','สมัครสมาชิกสำเร็จ! กำลังเข้าสู่ระบบ...','ok');
+        setTimeout(function(){enterApp();},800);
+      } else {
+        showAuthAlert('regAlert',(res&&res.error)||'ไม่สำเร็จ');
+      }
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-user-plus"></i> สมัครสมาชิก';
+      showAuthAlert('regAlert','เกิดข้อผิดพลาด: '+err.message);
+    });
+}
+
+// ===== ENTER APP =====
+function enterApp(){
+  document.querySelectorAll('.auth-page').forEach(function(x){x.classList.remove('show');});
+  var app=document.getElementById('mainApp');
+  app.classList.add('show');
+
+  var isAdm=currentUser.role==='admin';
+  var initials=currentUser.displayName?currentUser.displayName.charAt(0).toUpperCase():'U';
+  document.getElementById('userInfo').innerHTML=
+    '<div class="user-badge">'+
+    '<div class="avatar'+(isAdm?' admin':'')+'" title="'+esc(currentUser.displayName)+'">'+initials+'</div>'+
+    '<div><div class="uname">'+esc(currentUser.displayName)+'</div>'+
+    '<span class="role-chip '+(isAdm?'role-admin':'role-user')+'">'+(isAdm?'Admin':'User')+'</span></div>'+
+    '</div>';
+
+  document.getElementById('nav-admin').style.display = isAdm?'':'none';
+  document.getElementById('dashSub').textContent='ยินดีต้อนรับ, '+currentUser.displayName;
+  buildYearSelect();
+  loadCerts();
+}
+
+function doLogout(){
+  currentUser=null; certs=[];
+  document.getElementById('mainApp').classList.remove('show');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginAlert').style.display='none';
+  showAuth('login');
+}
+
+// ===== LOAD CERTS =====
+// เดิม: google.script.run.clientList(currentUser.userId)
+// ใหม่: gasCall({ action:"list", userId })
+function loadCerts(){
+  document.getElementById('dashContent').innerHTML=spin();
+  gasCall({ action:"list", userId:currentUser.userId })
+    .then(function(res){
+      if(res&&res.ok){certs=res.data||[];}
+      else{certs=[];showNotif('โหลดไม่สำเร็จ: '+(res&&res.error||''));}
+      renderDashboard();
+      renderCerts();
+    })
+    .catch(function(err){
+      certs=[];
+      document.getElementById('dashContent').innerHTML=
+        '<div class="es"><i class="ti ti-wifi-off"></i><p>'+err.message+'</p></div>';
+    });
+}
+
+// ===== PAGES =====
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('page-'+p).classList.add('active');
+  var nb=document.getElementById('nav-'+p);
+  if(nb) nb.classList.add('active');
+  if(p==='certs') renderCerts();
+  if(p==='admin') loadAdmin();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  var years=[],orgs=[];
+  certs.forEach(function(c){
+    if(years.indexOf(c.year)<0) years.push(c.year);
+    if(orgs.indexOf(c.org)<0) orgs.push(c.org);
+  });
+  years.sort(function(a,b){return b-a;});
+  var pdfCnt=certs.filter(function(c){return c.type==='pdf';}).length;
+  var maxCnt=years.length?Math.max.apply(null,years.map(function(y){
+    return certs.filter(function(c){return c.year===y;}).length;
+  })):1;
+
+  var h='<div class="sg">';
+  h+=sc('blue','ti-certificate',certs.length,'เกียรติบัตรทั้งหมด');
+  h+=sc('green','ti-calendar-stats',years.length,'ปีที่มีข้อมูล');
+  h+=sc('amber','ti-building',orgs.length,'หน่วยงาน');
+  h+=sc('red','ti-file-type-pdf',pdfCnt,'ไฟล์ PDF');
+  h+='</div>';
+
+  if(years.length){
+    h+='<div class="sh"><div class="sh-t">แยกตามปี</div><button class="sh-l" onclick="showPage(\'certs\')">ดูทั้งหมด →</button></div>';
+    h+='<div class="yg">';
+    years.forEach(function(y){
+      var cnt=certs.filter(function(c){return c.year===y;}).length;
+      var col=getYC(y);
+      h+='<div class="yc" onclick="filterByYear(\''+y+'\')">'+
+         '<div class="yn" style="color:'+TC[col]+'">'+y+'</div>'+
+         '<div class="yct">'+cnt+' เกียรติบัตร</div>'+
+         '<div class="yb"><div class="ybf" style="width:'+Math.round((cnt/maxCnt)*100)+'%;background:'+TC[col]+'"></div></div>'+
+         '</div>';
+    });
+    h+='</div>';
+  }
+
+  if(certs.length){
+    h+='<div class="sh"><div class="sh-t">ล่าสุด</div><button class="sh-l" onclick="showPage(\'certs\')">ดูทั้งหมด →</button></div>';
+    h+='<div class="rl">';
+    certs.slice(0,5).forEach(function(c){
+      var col=getYC(c.year);
+      var ts=(c.type==='pdf'?c.thumbUrl:c.fileUrl)||'';
+      var thumb=ts?'<img src="'+ts+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:8px">':tIcon(c.type||'img',22);
+      h+='<div class="ri" onclick="openDetail(\''+esc(c.id)+'\')">'+
+         '<div class="rt">'+thumb+'</div>'+
+         '<div class="rinfo"><div class="rn">'+esc(c.name)+'</div>'+
+         '<div class="rm">'+esc(c.org)+' · '+(c.date||'ไม่ระบุ')+'</div></div>'+
+         '<span class="badge" style="background:'+BGC[col]+';color:'+TC[col]+'">'+c.year+'</span></div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div class="es"><i class="ti ti-award"></i><p>ยังไม่มีเกียรติบัตร ไปเพิ่มกันเลย!</p></div>';
+  }
+  document.getElementById('dashContent').innerHTML=h;
+}
+
+function sc(col,icon,num,label){
+  return '<div class="sc"><div class="si '+col+'"><i class="ti '+icon+'"></i></div>'+
+    '<div class="sn">'+num+'</div><div class="sl">'+label+'</div></div>';
+}
+function filterByYear(y){document.getElementById('yearFilter').value=y;showPage('certs');}
+
+// ===== CERTS =====
+function renderCerts(){
+  var q=(document.getElementById('searchInput').value||'').toLowerCase();
+  var yr=document.getElementById('yearFilter').value;
+  var sort=document.getElementById('sortFilter').value;
+  var years=[];
+  certs.forEach(function(c){if(years.indexOf(c.year)<0)years.push(c.year);});
+  years.sort(function(a,b){return b-a;});
+  var sel=document.getElementById('yearFilter'),cur=sel.value;
+  sel.innerHTML='<option value="">ทุกปี</option>';
+  years.forEach(function(y){var o=document.createElement('option');o.value=y;o.textContent=y;if(y===cur)o.selected=true;sel.appendChild(o);});
+  var f=certs.filter(function(c){
+    return(!q||(c.name.toLowerCase().indexOf(q)>=0||c.org.toLowerCase().indexOf(q)>=0))&&(!yr||c.year===yr);
+  });
+  if(sort==='oldest') f.sort(function(a,b){return new Date(a.date||0)-new Date(b.date||0);});
+  else if(sort==='name') f.sort(function(a,b){return a.name.localeCompare(b.name,'th');});
+  document.getElementById('certCount').textContent=f.length;
+  var grid=document.getElementById('certGrid'),empty=document.getElementById('emptyState');
+  if(!f.length){grid.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  grid.innerHTML=f.map(function(c){
+    var col=getYC(c.year);
+    var ts=(c.type==='pdf'?c.thumbUrl:c.fileUrl)||'';
+    var thumb=ts?'<img src="'+ts+'" alt="'+esc(c.name)+'" loading="lazy">':
+      '<div class="ctp">'+tIcon(c.type||'img',36)+'<span>'+(c.type||'IMG').toUpperCase()+'</span></div>';
+    return '<div class="cc" onclick="openDetail(\''+esc(c.id)+'\')">'+
+      '<div class="ct">'+thumb+'</div>'+
+      '<div class="ci">'+
+      '<div class="cn">'+esc(c.name)+'</div>'+
+      '<div class="co">'+esc(c.org)+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        '<span class="badge" style="background:'+BGC[col]+';color:'+TC[col]+'">'+c.year+'</span>'+
+        (c.link?'<span class="badge" style="background:var(--blue3);color:var(--blue)"><i class="ti ti-link" style="font-size:10px"></i> ลิงก์</span>':'')+
+      '</div>'+
+      '<div class="cf"><span class="cd">'+(c.date||'ไม่ระบุ')+'</span>'+
+      '<div class="ca">'+
+        '<button class="ib" onclick="openEdit(\''+esc(c.id)+'\');event.stopPropagation()" title="แก้ไข"><i class="ti ti-edit"></i></button>'+
+        '<button class="ib danger" onclick="delCert(\''+esc(c.id)+'\');event.stopPropagation()" title="ลบ"><i class="ti ti-trash"></i></button>'+
+        '<button class="ib" onclick="openDetail(\''+esc(c.id)+'\');event.stopPropagation()" title="ดู"><i class="ti ti-eye"></i></button>'+
+      '</div></div></div></div>';
+  }).join('');
+}
+
+// ===== DETAIL =====
+function openDetail(id){
+  var c=certs.find(function(x){return String(x.id)===String(id);});if(!c)return;
+  var col=getYC(c.year);
+  var ts=(c.type==='pdf'?c.thumbUrl:c.fileUrl)||'';
+  var thumb=ts?'<img src="'+ts+'" alt="">':
+    '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">'+tIcon(c.type||'img',32)+'</div>';
+  var h='<div class="dhr"><div class="dth">'+thumb+'</div>'+
+    '<div><div class="dtitle">'+esc(c.name)+'</div>'+
+    '<div class="dorg">'+esc(c.org)+'</div>'+
+    '<span class="badge" style="background:'+BGC[col]+';color:'+TC[col]+'">'+c.year+'</span></div></div>';
+  h+=dr('ti-calendar','วันที่ได้รับ',c.date||'ไม่ระบุ');
+  if(c.desc) h+=dr('ti-align-left','รายละเอียด',esc(c.desc));
+  if(c.link) h+='<div class="dr"><div class="dic"><i class="ti ti-external-link"></i></div>'+
+    '<div><div class="dlbl">ลิงก์อ้างอิง</div><a href="'+c.link+'" class="dlink" target="_blank" rel="noopener"><i class="ti ti-link"></i> '+esc(c.link)+'</a></div></div>';
+  if(c.fileUrl){
+    var fileId = c.fileId || '';
+    var viewUrl = fileId ? 'https://drive.google.com/file/d/'+fileId+'/view' : c.fileUrl;
+    var dlUrl   = fileId ? 'https://drive.google.com/uc?export=download&id='+fileId : c.fileUrl;
+    h+='<div class="dr"><div class="dic"><i class="ti ti-download"></i></div>'+
+      '<div><div class="dlbl">ไฟล์เกียรติบัตร</div>'+
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">'+
+      '<a href="'+viewUrl+'" class="dlink" target="_blank" rel="noopener"><i class="ti ti-eye"></i> ดูตัวอย่าง</a>'+
+      '<a href="'+dlUrl+'" class="dlink" target="_blank" rel="noopener"><i class="ti ti-download"></i> ดาวน์โหลด</a>'+
+      '</div></div></div>';
+  }
+  document.getElementById('detailContent').innerHTML=h;
+  document.getElementById('detailActions').innerHTML=
+    '<button class="bs" onclick="closeModal(\'detailModal\');openEdit(\''+esc(id)+'\')"><i class="ti ti-edit"></i> แก้ไข</button>'+
+    '<button class="bp" onclick="closeModal(\'detailModal\')">ปิด</button>';
+  openModal('detailModal');
+}
+function dr(icon,label,val){
+  return '<div class="dr"><div class="dic"><i class="ti '+icon+'"></i></div>'+
+    '<div><div class="dlbl">'+label+'</div><div class="dval">'+val+'</div></div></div>';
+}
+
+// ===== ADD/EDIT =====
+function buildYearSelect(){
+  var sel=document.getElementById('fYear');if(!sel)return;
+  var cur=new Date().getFullYear()+543;sel.innerHTML='';
+  for(var y=cur;y>=cur-10;y--){var o=document.createElement('option');o.value=y;o.textContent=y;sel.appendChild(o);}
+}
+function openAdd(){
+  editId=null;selFile=null;selName=null;
+  document.getElementById('modalTitle').textContent='เพิ่มเกียรติบัตร';
+  ['fName','fOrg','fDate','fDesc','fLink'].forEach(function(id){document.getElementById(id).value='';});
+  buildYearSelect();resetUpload();openModal('addModal');
+}
+function openEdit(id){
+  var c=certs.find(function(x){return String(x.id)===String(id);});if(!c)return;
+  editId=id;selFile=null;selName=null;
+  document.getElementById('modalTitle').textContent='แก้ไขเกียรติบัตร';
+  document.getElementById('fName').value=c.name||'';
+  document.getElementById('fOrg').value=c.org||'';
+  buildYearSelect();document.getElementById('fYear').value=c.year||'';
+  document.getElementById('fDate').value=c.date||'';
+  document.getElementById('fDesc').value=c.desc||'';
+  document.getElementById('fLink').value=c.link||'';
+  resetUpload();
+  if(c.fileUrl){
+    document.getElementById('uploadPrompt').style.display='none';
+    var fp=document.getElementById('filePW');fp.style.display='flex';
+    fp.innerHTML=tIcon(c.type||'img',24)+'<span>ไฟล์เดิม ('+esc(c.name)+')</span>'+
+      '<button class="rf" onclick="resetUpload()"><i class="ti ti-x"></i></button>';
+  }
+  openModal('addModal');
+}
+function resetUpload(){
+  document.getElementById('uploadPrompt').style.display='';
+  document.getElementById('filePW').style.display='none';
+  document.getElementById('fileInput').value='';
+  selFile=null;selName=null;
+}
+function handleFile(input){
+  var f=input.files[0];if(!f)return;
+  if(f.size>10*1024*1024){showNotif('ไฟล์ใหญ่เกิน 10 MB');return;}
+  var r=new FileReader();
+  r.onload=function(e){
+    selFile=e.target.result;selName=f.name;
+    document.getElementById('uploadPrompt').style.display='none';
+    var fp=document.getElementById('filePW');fp.style.display='flex';
+    fp.innerHTML=(f.type.startsWith('image/')?'<img src="'+e.target.result+'" style="width:44px;height:44px;object-fit:cover;border-radius:6px" alt="">':tIcon('pdf',28))+
+      '<span>'+esc(f.name)+'</span><button class="rf" onclick="resetUpload()"><i class="ti ti-x"></i></button>';
+  };
+  r.readAsDataURL(f);
+}
+
+// ===== SAVE CERT =====
+// เดิม: google.script.run.clientAdd(payload) / clientEdit(payload)
+// ใหม่: gasCall({ action:"add"|"edit", ...payload })
+function saveCert(){
+  var name=document.getElementById('fName').value.trim();
+  var org=document.getElementById('fOrg').value.trim();
+  if(!name||!org){showNotif('กรุณากรอกชื่อและหน่วยงาน');return;}
+  var btn=document.getElementById('saveBtn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> กำลังบันทึก...';
+  var payload={
+    action: editId ? 'edit' : 'add',
+    userId:currentUser.userId,
+    id:editId,
+    name:name,
+    org:org,
+    year:document.getElementById('fYear').value,
+    date:document.getElementById('fDate').value,
+    desc:document.getElementById('fDesc').value.trim(),
+    link:document.getElementById('fLink').value.trim()
+  };
+  if(selFile){payload.fileData=selFile;payload.fileName=selName;}
+  gasCall(payload)
+    .then(function(res){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> บันทึก';
+      if(!res||!res.ok){showNotif('เกิดข้อผิดพลาด: '+(res&&res.error||''));return;}
+      showNotif(editId?'แก้ไขสำเร็จ':'เพิ่มสำเร็จ');
+      closeModal('addModal');loadCerts();
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> บันทึก';
+      showNotif('เกิดข้อผิดพลาด: '+err.message);
+    });
+}
+
+// ===== DELETE CERT =====
+// เดิม: google.script.run.clientDelete(id, userId)
+// ใหม่: gasCall({ action:"delete", id, userId })
+function delCert(id){
+  if(!confirm('ยืนยันลบเกียรติบัตรนี้?'))return;
+  gasCall({ action:"delete", id:id, userId:currentUser.userId })
+    .then(function(res){
+      if(!res||!res.ok){showNotif('ลบไม่สำเร็จ: '+(res&&res.error||''));return;}
+      showNotif('ลบแล้ว');loadCerts();
+    })
+    .catch(function(err){showNotif('เกิดข้อผิดพลาด: '+err.message);});
+}
+
+// ===== ADMIN =====
+// เดิม: google.script.run.adminGetUsers(currentUser.userId)
+// ใหม่: gasCall({ action:"adminGetUsers", userId })
+function loadAdmin(){
+  document.getElementById('adminContent').innerHTML=spin();
+  gasCall({ action:"adminGetUsers", userId:currentUser.userId })
+    .then(function(res){
+      if(!res||!res.ok){document.getElementById('adminContent').innerHTML='<div class="es"><i class="ti ti-lock"></i><p>ไม่มีสิทธิ์</p></div>';return;}
+      renderAdmin(res.data||[]);
+    })
+    .catch(function(err){
+      document.getElementById('adminContent').innerHTML='<div class="es"><i class="ti ti-wifi-off"></i><p>'+err.message+'</p></div>';
+    });
+}
+
+function renderAdmin(users){
+  if(!users.length){document.getElementById('adminContent').innerHTML='<div class="es"><i class="ti ti-users"></i><p>ยังไม่มีผู้ใช้</p></div>';return;}
+  var h='<div style="overflow-x:auto"><table class="user-table">'+
+    '<thead><tr><th>ชื่อที่แสดง</th><th>ชื่อผู้ใช้</th><th>สิทธิ์</th><th>วันที่สมัคร</th><th>จัดการ</th></tr></thead><tbody>';
+  users.forEach(function(u){
+    var isAdm=u.role==='admin';
+    h+='<tr>'+
+      '<td><div style="display:flex;align-items:center;gap:8px">'+
+      '<div class="avatar'+(isAdm?' admin':'')+'" style="width:28px;height:28px;font-size:11px">'+
+      (u.displayName?u.displayName.charAt(0).toUpperCase():'U')+'</div>'+
+      esc(u.displayName)+'</div></td>'+
+      '<td>'+esc(u.username)+'</td>'+
+      '<td><span class="role-chip '+(isAdm?'role-admin':'role-user')+'">'+(isAdm?'Admin':'User')+'</span></td>'+
+      '<td>'+(u.createdAt?u.createdAt.split('T')[0]:'')+'</td>'+
+      '<td><div style="display:flex;gap:6px">'+
+        '<button class="ib" onclick="openEditUser(\''+esc(u.id)+'\',\''+esc(u.displayName)+'\',\''+esc(u.role)+'\')" title="แก้ไข"><i class="ti ti-edit"></i></button>'+
+        (u.id!==currentUser.userId?'<button class="ib danger" onclick="deleteUser(\''+esc(u.id)+'\',\''+esc(u.displayName)+'\')" title="ลบ"><i class="ti ti-trash"></i></button>':'')+
+      '</div></td></tr>';
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('adminContent').innerHTML=h;
+}
+
+function openEditUser(id,name,role){
+  document.getElementById('euId').value=id;
+  document.getElementById('euName').value=name;
+  document.getElementById('euRole').value=role;
+  document.getElementById('euPass').value='';
+  openModal('editUserModal');
+}
+
+// ===== SAVE USER (ADMIN) =====
+// เดิม: google.script.run.adminUpdateUser(adminUserId, id, updates)
+// ใหม่: gasCall({ action:"adminUpdateUser", userId, targetUserId, updates })
+function saveUser(){
+  var id=document.getElementById('euId').value;
+  var name=document.getElementById('euName').value.trim();
+  var role=document.getElementById('euRole').value;
+  var pass=document.getElementById('euPass').value.trim();
+  var btn=document.getElementById('saveUserBtn');
+  var updates={role:role};
+  if(name) updates.displayName=name;
+  if(pass) updates.password=pass;
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> กำลังบันทึก...';
+  gasCall({ action:"adminUpdateUser", userId:currentUser.userId, targetUserId:id, updates:updates })
+    .then(function(res){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> บันทึก';
+      if(!res||!res.ok){showNotif('ไม่สำเร็จ: '+(res&&res.error||''));return;}
+      showNotif('แก้ไขผู้ใช้สำเร็จ');closeModal('editUserModal');loadAdmin();
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> บันทึก';
+      showNotif('เกิดข้อผิดพลาด: '+err.message);
+    });
+}
+
+// ===== DELETE USER (ADMIN) =====
+// เดิม: google.script.run.adminDeleteUser(adminUserId, id)
+// ใหม่: gasCall({ action:"adminDeleteUser", userId, targetUserId })
+function deleteUser(id,name){
+  if(!confirm('ยืนยันลบผู้ใช้ "'+name+'" ?'))return;
+  gasCall({ action:"adminDeleteUser", userId:currentUser.userId, targetUserId:id })
+    .then(function(res){
+      if(!res||!res.ok){showNotif('ลบไม่สำเร็จ');return;}
+      showNotif('ลบผู้ใช้แล้ว');loadAdmin();
+    })
+    .catch(function(err){showNotif('เกิดข้อผิดพลาด: '+err.message);});
+}
+
+// ===== MODAL =====
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+// ===== NOTIFY =====
+function showNotif(msg){
+  var n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');
+  setTimeout(function(){n.classList.remove('show');},2800);
+}
+</script>
+</body>
+</html>
